@@ -1,0 +1,62 @@
+/* components/cropper/cropper.wxss */
+.canvas-bg{ 
+  width: 100%;
+  height: 100%;
+  background: #111;
+  position: relative;
+  transform: translateZ(0);
+  overflow: hidden;
+}
+.originCanvas{  
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index:1;
+}
+.origin-cover-image{ 
+  width: 50%;
+  height: 50%; 
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+/* .scaleCanvas{ 
+  width:100%;
+  height:100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index:2;
+} */
+
+.move-canvas{ 
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index:3;
+}
+.saveImg-bg{
+  width: 100%;
+  height: 100rpx;
+  position: absolute;
+  left: 0;
+  bottom: 20rpx;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.c-cancel,.c-saveImg{ 
+  width: 50%;
+  height: 100%;
+  line-height: 100rpx;
+  color: #fff;
+  font-size: 32rpx;
+}
+.saveImg-bg .c-saveImg{ 
+  color: #23db83;
+}

@@ -1,0 +1,2 @@
+<!--pages/user/test/test.wxml-->
+<cropper wx:if="{{imageSrc}}" image-src="{{imageSrc}}" bind:saveImg="saveImg"></cropper>

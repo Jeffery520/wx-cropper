@@ -1,0 +1,7 @@
+/* pages/user/test/test.wxss */
+.img-bg{  
+  background: #ccc;
+  width:200px;
+  height: 200px;
+  margin:40rpx auto;
+}

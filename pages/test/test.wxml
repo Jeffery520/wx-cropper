@@ -1,0 +1,5 @@
+<!--pages/user/test/test.wxml-->
+<view class='img-bg'>
+  <image src='{{imageSrc}}' mode='widthFix' style='width:200px;'></image>
+</view>
+<button style='width:560rpx;' type='primary' catchtap='chooseImage'>上传图片</button>
