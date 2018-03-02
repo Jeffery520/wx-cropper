@@ -1,18 +1,12 @@
 <!--components/cropper/cropper.wxml-->
 <view class='canvas-bg'>
-
   <view class='originCanvas'>
     <canvas style="width:200%;height:200%;" disable-scroll="{{true}}" canvas-id="originCanvas">
       <cover-view style="width:100%;height:100%;position: relative;background:#111;">
-        <cover-image class='origin-cover-image' style="width:{{imgW}};height:{{imgH}};position: absolute;left:{{X}};top:{{Y}};" src="{{imageSrc}}"></cover-image>
+         <cover-image class='origin-cover-image' style="width:{{imgW}};height:{{imgH}};position: absolute;left:{{X}};top:{{Y}};" src="{{imageSrc}}"></cover-image> 
       </cover-view>
     </canvas>
   </view>
-
-  <!-- <view class="scaleCanvas">
-    <canvas style="width:100%;height:100%;" disable-scroll="{{true}}">
-    </canvas>
-  </view> -->
 
   <view class="move-canvas">
     <canvas style="width:100%;height:100%;" canvas-id="moveCanvas" disable-scroll="{{true}}" bindtouchstart="touchstart" bindtouchmove="touchmove" bindtouchend="touchend">

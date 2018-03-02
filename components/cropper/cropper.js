@@ -1,9 +1,10 @@
-
+//获取应用实例
+const app = getApp();
+const { util } = app;
 // 获取显示区域长宽
 const device = wx.getSystemInfoSync()
 const W = device.windowWidth;
 const H = device.windowHeight;
-//截取区域的宽度
 const cutW = 260;
 //截取点坐标
 const coordinate = [{
@@ -19,6 +20,11 @@ const coordinate = [{
   x: (W - cutW) / 2 + cutW,
   y: (H - cutW) / 2 + cutW,
 }];
+//截取图片的坐标
+let cutDta={
+  x: (W - cutW) / 2,
+  y: (H - cutW) / 2
+}
 //图片在画布上的位置
 let X = 0, Y = 0;
 //图片伸缩后的宽高/初始宽高
@@ -43,25 +49,49 @@ Component({
     }
   },
   data: {
-    //截取图片的坐标
-    cutDta: {
-      x: (W - cutW) / 2,
-      y: (H - cutW) / 2
-    }
+    
   },
   methods: {
     //初始化函数
     _init() {
       let that = this;
+      wx.showToast({
+        title: 'loading...',
+        duration: 60000
+      })
       that.ctx1 = wx.createCanvasContext('moveCanvas', that);
       that.ctx2 = wx.createCanvasContext('originCanvas', that);
-
       //绘制遮罩层
       that.ctx1.setFillStyle('rgba(0, 0, 0, 0.4)')
       that.ctx1.fillRect(0, 0, W, H)
       that.ctx1.clearRect(W / 2 - cutW / 2, H / 2 - cutW / 2, cutW, cutW)
       that.ctx1.setStrokeStyle('green')
       that.ctx1.strokeRect(W / 2 - cutW / 2, H / 2 - cutW / 2, cutW, cutW)
+      
+      that.ctx1.beginPath()
+      that.ctx1.setStrokeStyle('rgba(255,255,255,0.4)')
+      that.ctx1.moveTo(W / 2 - cutW / 6, H / 2 - cutW / 2)
+      that.ctx1.lineTo(W / 2 - cutW / 6, H / 2 + cutW / 2)
+      that.ctx1.stroke()
+
+      that.ctx1.beginPath()
+      that.ctx1.setStrokeStyle('rgba(255,255,255,0.4)')
+      that.ctx1.moveTo(W / 2 + cutW / 6, H / 2 - cutW / 2)
+      that.ctx1.lineTo(W / 2 + cutW / 6, H / 2 + cutW / 2)
+      that.ctx1.stroke()
+
+      that.ctx1.beginPath()
+      that.ctx1.setStrokeStyle('rgba(255,255,255,0.4)')
+      that.ctx1.moveTo(W / 2 - cutW / 2, H / 2 - cutW / 6)
+      that.ctx1.lineTo(W / 2 + cutW / 2, H / 2 - cutW / 6)
+      that.ctx1.stroke()
+
+      that.ctx1.beginPath()
+      that.ctx1.setStrokeStyle('rgba(255,255,255,0.4)')
+      that.ctx1.moveTo(W / 2 + cutW / 2, H / 2 + cutW / 6)
+      that.ctx1.lineTo(W / 2 - cutW / 2, H / 2 + cutW / 6)
+      that.ctx1.stroke()
+
       that.ctx1.draw()
       
       //获取图片信息，绘制底层图片
@@ -82,23 +112,20 @@ Component({
           X = (W - imgW) / 2;
           Y = (H - imgH) / 2;
           that.setData({  
-            // imageSrc: res.path,
             X: X + 'px',
             Y: Y + 'px',
             imgW: imgW + 'px',
             imgH: imgH + 'px',
-            'cutDta.x': Math.abs(W - cutW) / 2,
-            'cutDta.y': Math.abs(H - cutW) / 2
           })
-          //原图画布绘制
-          that.ctx2.drawImage(that.data.imageSrc, X * 2, Y * 2, imgW * 2, imgH * 2)
-          that.ctx2.draw()      
+          cutDta.x = Math.abs(W - cutW) / 2;
+          cutDta.y = Math.abs(H - cutW) / 2;
+          wx.hideToast()
         },
         fail:function(){  
           wx.showModal({
             title: '提示',
             content: '图片加载失败，请重新选择',
-            showCancel: false,
+            showCancel:false,
             success: function (res) {
               wx.navigateBack({
                 delta: 1
@@ -106,8 +133,8 @@ Component({
             }
           })
         }
-
       })
+
     },
     //移动图片
     move() {
@@ -117,8 +144,6 @@ Component({
         Y: Y + 'px',
         imgW: imgW + 'px',
         imgH: imgH + 'px',
-        'cutDta.x': Math.abs(W - cutW) / 2,
-        'cutDta.y': Math.abs(H - cutW) / 2,
       })
     },
     //缩放图片
@@ -128,14 +153,12 @@ Component({
       imgH = scale * initialH;
       X = (W - imgW) / 2;
       Y = (H - imgH) / 2;
-
+      
       that.setData({
         X: X + 'px',
         Y: Y + 'px',
         imgW: imgW + 'px',
         imgH: imgH + 'px',
-        'cutDta.x': Math.abs(W - cutW) / 2,
-        'cutDta.y': Math.abs(H - cutW) / 2,
       })
     },
     touchstart(e) {
@@ -152,49 +175,81 @@ Component({
     },
     touchmove(e) {
       let that = this;
+      console.log(e)
       if (touch){ 
         if (e.touches.length >= 2) {
           // console.log('缩放')
           let xMove = e.touches[1].x - e.touches[0].x;
           let yMove = e.touches[1].y - e.touches[0].y;
           let distance = Math.sqrt(xMove * xMove + yMove * yMove);
-          let distanceDiff = (distance - oldDistance)/5
-          scale += 0.005 * distanceDiff
-          if (scale > 2) {
-            scale = 2
+          let distanceDiff = (distance - oldDistance);
+          //如果滑动距离大于0再进行缩放
+          if (Math.abs(distanceDiff)>=0){
+            scale = scale + 0.0004 * distanceDiff
+            if (scale > 2) {
+              scale = 2
+            }
+            if (scale < 1) {
+              scale = 1
+            }
+            that.scale()
           }
-          if (scale < 1) {
-            scale = 1
-          }
-          that.scale()
         } else {
           // console.log('移动')
-          let xMove = (e.touches[0].x - oldX)/6;
-          let yMove = (e.touches[0].y - oldY)/6;
-          X += xMove
-          Y += yMove
-          if (X >= coordinate[0].x) {
-            X = coordinate[0].x
+          let xMove = (e.touches[0].x - oldX)*0.09;
+          let yMove = (e.touches[0].y - oldY)*0.09;
+          
+          
+          if (Math.abs(xMove) >= 1 && Math.abs(yMove) < 1) {
+            X = X + Math.round(xMove)
+            //禁止超出边框
+            if (X >= coordinate[0].x) {
+              X = coordinate[0].x
+            }
+            if (X <= -(imgW - coordinate[1].x)) {
+              X = -(imgW - coordinate[1].x)
+            }
+            that.move()
           }
-          if (X <= -(imgW - coordinate[1].x)) {
-            X = -(imgW - coordinate[1].x)
+          
+          if (Math.abs(xMove) < 1 && Math.abs(yMove) >= 1) {
+            Y = Y + Math.round(yMove)
+            //禁止超出边框
+            if (Y >= coordinate[0].y) {
+              Y = coordinate[0].y
+            }
+            if (Y <= -(imgH - coordinate[2].y)) {
+              Y = -(imgH - coordinate[2].y)
+            }
+            that.move()
           }
-          if (Y >= coordinate[0].y) {
-            Y = coordinate[0].y
+          
+          if (Math.abs(xMove) >= 1 && Math.abs(yMove) >= 1) {
+            X = X + Math.round(xMove)
+            Y = Y + Math.round(yMove)
+            //禁止超出边框
+            if (X >= coordinate[0].x) {
+              X = coordinate[0].x
+            }
+            if (X <= -(imgW - coordinate[1].x)) {
+              X = -(imgW - coordinate[1].x)
+            }
+            if (Y >= coordinate[0].y) {
+              Y = coordinate[0].y
+            }
+            if (Y <= -(imgH - coordinate[2].y)) {
+              Y = -(imgH - coordinate[2].y)
+            }
+            that.move()
           }
-          if (Y <= -(imgH - coordinate[2].y)) {
-            Y = -(imgH - coordinate[2].y)
-          }
-          that.move()          
         }
       }
     },
     touchend() {
       let that=this;
-      //原图画布绘制
-      that.ctx2.drawImage(that.data.imageSrc, X * 2, Y * 2, imgW * 2, imgH * 2)
-      that.ctx2.draw()      
       touch=false;
+      cutDta.x = Math.abs(W - cutW) / 2;
+      cutDta.y = Math.abs(H - cutW) / 2;
       oldX = 0;
       oldY = 0;
     },
@@ -202,34 +257,38 @@ Component({
     saveImg() {
       let that = this;
       wx.showToast({
-        title: '正在保存...',
-        icon: 'loading',
-        duration: 6000
+        title: '正在生成...',
+        duration: 60000
       })
-      wx.canvasToTempFilePath({
-        x: that.data.cutDta.x*2,
-        y: that.data.cutDta.y*2,
-        width: cutW*2,
-        height: cutW*2,
-        destWidth: cutW*2,
-        destHeight: cutW*2,
-        canvasId: 'originCanvas',
-        fileType: 'jpg',
-        quality:1,
-        success: function (res) {
-          wx.hideLoading()
-          //自定义事件导出画布
-          that.triggerEvent('saveImg', res.tempFilePath)
-        },
-        fail(err) {
-          wx.hideLoading()
-          wx.showModal({
-            title: '保存失败',
-            content: '图片保存失败，请重新选择',
-            showCancel:false
-          })
-        }
-      }, that)
+      //原图画布绘制
+      that.ctx2.drawImage(that.data.imageSrc, X * 2, Y * 2, imgW * 2, imgH * 2)
+      that.ctx2.draw()  
+      setTimeout(function(){  
+        wx.canvasToTempFilePath({
+          x: cutDta.x * 2,
+          y: cutDta.y * 2,
+          width: cutW * 2,
+          height: cutW * 2,
+          destWidth: cutW * 2,
+          destHeight: cutW * 2,
+          canvasId: 'originCanvas',
+          fileType: 'jpg',
+          quality: 1,
+          success: function (res) {
+            wx.hideToast()
+            //自定义事件导出画布
+            that.triggerEvent('saveImg', res.tempFilePath)
+          },
+          fail(err) {
+            wx.hideToast()
+            wx.showModal({
+              title: '保存失败',
+              content: '图片保存失败，请重新选择',
+              showCancel:false
+            })
+          }
+        }, that)
+      },1000)
     },
     //取消裁剪
     cancel(){ 
