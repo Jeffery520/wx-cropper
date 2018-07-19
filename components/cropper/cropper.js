@@ -49,7 +49,7 @@ Component({
     }
   },
   data: {
-    
+
   },
   methods: {
     //初始化函数
@@ -67,7 +67,7 @@ Component({
       that.ctx1.clearRect(W / 2 - cutW / 2, H / 2 - cutW / 2, cutW, cutW)
       that.ctx1.setStrokeStyle('green')
       that.ctx1.strokeRect(W / 2 - cutW / 2, H / 2 - cutW / 2, cutW, cutW)
-      
+
       that.ctx1.beginPath()
       that.ctx1.setStrokeStyle('rgba(255,255,255,0.4)')
       that.ctx1.moveTo(W / 2 - cutW / 6, H / 2 - cutW / 2)
@@ -93,7 +93,7 @@ Component({
       that.ctx1.stroke()
 
       that.ctx1.draw()
-      
+
       //获取图片信息，绘制底层图片
       wx.getImageInfo({
         src: that.data.imageSrc,
@@ -111,7 +111,7 @@ Component({
           //图片在画布上的初始位置
           X = (W - imgW) / 2;
           Y = (H - imgH) / 2;
-          that.setData({  
+          that.setData({
             X: X + 'px',
             Y: Y + 'px',
             imgW: imgW + 'px',
@@ -121,7 +121,7 @@ Component({
           cutDta.y = Math.abs(H - cutW) / 2;
           wx.hideToast()
         },
-        fail:function(){  
+        fail:function(){
           wx.showModal({
             title: '提示',
             content: '图片加载失败，请重新选择',
@@ -153,7 +153,7 @@ Component({
       imgH = scale * initialH;
       X = (W - imgW) / 2;
       Y = (H - imgH) / 2;
-      
+
       that.setData({
         X: X + 'px',
         Y: Y + 'px',
@@ -176,15 +176,15 @@ Component({
     touchmove(e) {
       let that = this;
       console.log(e)
-      if (touch){ 
+      if (touch){
         if (e.touches.length >= 2) {
           // console.log('缩放')
           let xMove = e.touches[1].x - e.touches[0].x;
           let yMove = e.touches[1].y - e.touches[0].y;
           let distance = Math.sqrt(xMove * xMove + yMove * yMove);
           let distanceDiff = (distance - oldDistance);
-          //如果滑动距离大于0再进行缩放
-          if (Math.abs(distanceDiff)>=0){
+          //如果滑动距离大于5再进行缩放
+          if (Math.abs(distanceDiff)>=5){
             scale = scale + 0.0004 * distanceDiff
             if (scale > 2) {
               scale = 2
@@ -194,13 +194,14 @@ Component({
             }
             that.scale()
           }
+          return false
         } else {
           // console.log('移动')
-          let xMove = (e.touches[0].x - oldX)*0.09;
-          let yMove = (e.touches[0].y - oldY)*0.09;
-          
-          
-          if (Math.abs(xMove) >= 1 && Math.abs(yMove) < 1) {
+          let xMove = (e.touches[0].x - oldX)*0.05;
+          let yMove = (e.touches[0].y - oldY)*0.05;
+
+
+          if (Math.abs(xMove) >= 2 && Math.abs(yMove) < 2) {
             X = X + Math.round(xMove)
             //禁止超出边框
             if (X >= coordinate[0].x) {
@@ -211,8 +212,8 @@ Component({
             }
             that.move()
           }
-          
-          if (Math.abs(xMove) < 1 && Math.abs(yMove) >= 1) {
+
+          if (Math.abs(xMove) < 2 && Math.abs(yMove) >= 2) {
             Y = Y + Math.round(yMove)
             //禁止超出边框
             if (Y >= coordinate[0].y) {
@@ -223,8 +224,8 @@ Component({
             }
             that.move()
           }
-          
-          if (Math.abs(xMove) >= 1 && Math.abs(yMove) >= 1) {
+
+          if (Math.abs(xMove) >= 2 && Math.abs(yMove) >= 2) {
             X = X + Math.round(xMove)
             Y = Y + Math.round(yMove)
             //禁止超出边框
@@ -262,8 +263,8 @@ Component({
       })
       //原图画布绘制
       that.ctx2.drawImage(that.data.imageSrc, X * 2, Y * 2, imgW * 2, imgH * 2)
-      that.ctx2.draw()  
-      setTimeout(function(){  
+      that.ctx2.draw()
+      setTimeout(function(){
         wx.canvasToTempFilePath({
           x: cutDta.x * 2,
           y: cutDta.y * 2,
@@ -291,7 +292,7 @@ Component({
       },1000)
     },
     //取消裁剪
-    cancel(){ 
+    cancel(){
       wx.navigateBack({
         data:1
       })
