@@ -16,6 +16,7 @@ Page({
       duration: 6000
     })
     //保存到系统相册
+    //裁剪后图片的临时路径：e.detail
     wx.saveImageToPhotosAlbum({
       filePath: e.detail,
       success(res) {

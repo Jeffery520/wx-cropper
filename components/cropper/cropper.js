@@ -5,6 +5,7 @@ const { util } = app;
 const device = wx.getSystemInfoSync()
 const W = device.windowWidth;
 const H = device.windowHeight;
+// 裁剪后图片宽高cutW*2
 const cutW = 260;
 //截取点坐标
 const coordinate = [{
@@ -278,6 +279,7 @@ Component({
           success: function (res) {
             wx.hideToast()
             //自定义事件导出画布
+            //裁剪后图片的临时路径：res.tempFilePath
             that.triggerEvent('saveImg', res.tempFilePath)
           },
           fail(err) {
